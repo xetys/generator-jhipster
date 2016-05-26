@@ -4,12 +4,13 @@ services:
   - docker
 language: node_js
 node_js:
-  - "4.4.2"
+  - "4.4.4"
 jdk:
   - oraclejdk8
 env:
   global:
-    - JHIPSTER_NODE_CACHE=1
+    - JHIPSTER_CACHE_REPO=https://github.com/jhipster/jhipster-travis-cache.git
+    - JHIPSTER_CACHE_BRANCH=160516-springboot-135
     - PROFILE=dev
     - RUN_APP=1
     - PROTRACTOR=0
@@ -30,7 +31,6 @@ env:
     - JHIPSTER=app-mongodb
     - JHIPSTER=app-oauth2
     - JHIPSTER=app-jwt
-
 before_install:
   - sudo /etc/init.d/postgresql stop
   - export DISPLAY=:99.0
@@ -46,10 +46,11 @@ script:
   - $JHIPSTER_SCRIPTS/03-docker-compose.sh
   - $JHIPSTER_SCRIPTS/04-tests.sh
   - $JHIPSTER_SCRIPTS/05-run.sh
+  - $JHIPSTER_SCRIPTS/06-sonar.sh
 notifications:
   webhooks:
     urls:
-      - https://webhooks.gitter.im/e/c77e712c44b0a4914b7c
+      - https://webhooks.gitter.im/e/479b810ad42c816679fb
     on_success: always  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
     on_start: false     # default: false

@@ -76,6 +76,9 @@
         },
         "field": {
             "id" : "ID"
+        },
+        "ribbon": {
+            "dev":"Development"
         }
     },
     "entity": {
@@ -86,6 +89,7 @@
             "cancel": "Annulla",
             "delete": "Elimina",
             "edit": "Modifica",
+            "open": "Open",
             "save": "Salva",
             "view": "Visualizza"
         },
@@ -111,6 +115,7 @@
     },
     "error": {
         "server.not.reachable": "Server not reachable",
+        "url.not.found": "Not found",
         "NotNull": "Il campo {{fieldName}} non può essere vuoto!",
         "Size": "Il campo {{fieldName}} non è conforme ai requisiti di lunghezza min/max!",
         "userexists": "Il nome utente è già in uso!",
