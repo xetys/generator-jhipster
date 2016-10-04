@@ -9,7 +9,7 @@ ext {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-tomcat:${spring_boot_version}"
+
 }
 
 def profiles = 'prod'
@@ -17,8 +17,8 @@ if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
 
-if (project.hasProperty('no-swagger')) {
-    profiles += ',no-swagger'
+if (project.hasProperty('swagger')) {
+    profiles += ',swagger'
 }
 
 bootRun {
@@ -39,7 +39,12 @@ processResources {
             it.replace('#logback.loglevel#', logbackLoglevel)
         }
     }
+    <%_ if (applicationType === 'monolith') { _%>
     filesMatching('**/application.yml') {
+    <%_ } _%>
+    <%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa') { _%>
+    filesMatching('**/bootstrap.yml') {
+    <%_ } _%>
         filter {
             it.replace('#spring.profiles.active#', profiles)
         }

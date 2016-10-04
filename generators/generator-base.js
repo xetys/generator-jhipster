@@ -45,13 +45,12 @@ Generator.prototype.addElementToMenu = function (routerName, glyphiconName, enab
         jhipsterUtils.rewriteFile({
             file: fullPath,
             needle: 'jhipster-needle-add-element-to-menu',
-            splicable: [
-                '<li ui-sref-active="active" >\n' +
-                '                    <a ui-sref="' + routerName + '" ng-click="vm.collapseNavbar()">\n' +
-                '                        <span class="glyphicon glyphicon-' + glyphiconName + '"></span>&nbsp;\n' +
-                '                        <span ' + ( enableTranslation ? 'translate="global.menu.admin.' + routerName + '"' : '' ) + '>' + _.startCase(routerName) + '</span>\n' +
-                '                    </a>\n' +
-                '                </li>'
+            splicable: [`<li ui-sref-active="active">
+                            <a ui-sref="${routerName}" ng-click="vm.collapseNavbar()">
+                                <span class="glyphicon glyphicon-${glyphiconName}"></span>&nbsp;
+                                <span ${enableTranslation ? 'data-translate="global.menu.admin.' + routerName + '"' : ''}>${_.startCase(routerName)}</span>
+                            </a>
+                        </li>`
             ]
         }, this);
     } catch (e) {
@@ -72,13 +71,12 @@ Generator.prototype.addElementToAdminMenu = function (routerName, glyphiconName,
         jhipsterUtils.rewriteFile({
             file: fullPath,
             needle: 'jhipster-needle-add-element-to-admin-menu',
-            splicable: [
-                '<li ui-sref-active="active" >\n' +
-                '                            <a ui-sref="' + routerName + '" ng-click="vm.collapseNavbar()">\n' +
-                '                                <span class="glyphicon glyphicon-' + glyphiconName + '"></span>&nbsp;\n' +
-                '                                <span ' + ( enableTranslation ? 'translate="global.menu.admin.' + routerName + '"' : '' ) + '>' + _.startCase(routerName) + '</span>\n' +
-                '                            </a>\n' +
-                '                        </li>'
+            splicable: [`<li ui-sref-active="active" >
+                            <a ui-sref="${routerName}" ng-click="vm.collapseNavbar()">
+                                <span class="glyphicon glyphicon-${glyphiconName}"></span>&nbsp;
+                                <span ${enableTranslation ? 'data-translate="global.menu.admin.' + routerName + '"' : ''}>${_.startCase(routerName)}</span>
+                            </a>
+                        </li>`
             ]
         }, this);
     } catch (e) {
@@ -98,13 +96,12 @@ Generator.prototype.addEntityToMenu = function (routerName, enableTranslation) {
         jhipsterUtils.rewriteFile({
             file: fullPath,
             needle: 'jhipster-needle-add-entity-to-menu',
-            splicable: [
-                '<li ui-sref-active="active" >\n' +
-                '                            <a ui-sref="' + routerName + '" ng-click="vm.collapseNavbar()">\n' +
-                '                                <span class="glyphicon glyphicon-asterisk"></span>&nbsp;\n' +
-                '                                <span ' + ( enableTranslation ? 'translate="global.menu.entities.' + _.camelCase(routerName) + '"' : '' ) + '>' + _.startCase(routerName) + '</span>\n' +
-                '                            </a>\n' +
-                '                        </li>'
+            splicable: [`<li ui-sref-active="active">
+                            <a ui-sref="${routerName}" ng-click="vm.collapseNavbar()">
+                                <span class="glyphicon glyphicon-asterisk"></span>&nbsp;
+                                <span ${enableTranslation ? 'data-translate="global.menu.entities.' + _.camelCase(routerName) + '"' : ''}>${_.startCase(routerName)}</span>
+                            </a>
+                        </li>`
             ]
         }, this);
     } catch (e) {
@@ -126,7 +123,7 @@ Generator.prototype.addElementTranslationKey = function (key, value, language) {
             file: fullPath,
             needle: 'jhipster-needle-menu-add-element',
             splicable: [
-                '"' + key + '": "' + _.startCase(value) + '",'
+                `"${key}": "${_.startCase(value)}",`
             ]
         }, this);
     } catch (e) {
@@ -148,7 +145,7 @@ Generator.prototype.addAdminElementTranslationKey = function (key, value, langua
             file: fullPath,
             needle: 'jhipster-needle-menu-add-admin-element',
             splicable: [
-                '"' + key + '": "' + _.startCase(value) + '",'
+                `"${key}": "${_.startCase(value)}",`
             ]
         }, this);
     } catch (e) {
@@ -170,7 +167,7 @@ Generator.prototype.addEntityTranslationKey = function (key, value, language) {
             file: fullPath,
             needle: 'jhipster-needle-menu-add-entry',
             splicable: [
-                '"' + key + '": "' + _.startCase(value) + '",'
+                `"${key}": "${_.startCase(value)}",`
             ]
         }, this);
     } catch (e) {
@@ -394,7 +391,7 @@ Generator.prototype.addAngularJsModule = function (moduleName) {
             file: fullPath,
             needle: 'jhipster-needle-angularjs-add-module',
             splicable: [
-                '\'' + moduleName + '\','
+                `'${moduleName}',`
             ]
         }, this);
     } catch (e) {
@@ -415,11 +412,53 @@ Generator.prototype.addAngularJsInterceptor = function (interceptorName) {
             file: fullPath,
             needle: 'jhipster-needle-angularjs-add-interceptor',
             splicable: [
-                '$httpProvider.interceptors.push(\'' + interceptorName + '\');'
+                `$httpProvider.interceptors.push('${interceptorName}');`
             ]
         }, this);
     } catch (e) {
         this.log(chalk.yellow('\nUnable to find ') + fullPath + chalk.yellow(' or missing required jhipster-needle. Interceptor not added to JHipster app.\n'));
+    }
+};
+
+/**
+ * Add a new entity to the Ehcache, for the 2nd level cache of an entity and its relationships.
+ *
+ * @param {string} name - the entity to cache.
+ * @parma {array} relationships - the relationships of this entity
+ */
+Generator.prototype.addEntityToEhcache = function (entityClass, relationships) {
+    // Add the entity to ehcache
+    this.addEntryToEhcache(entityClass);
+    // Add the collections linked to that entity to ehcache
+    for (var idx in relationships) {
+        var relationshipType = relationships[idx].relationshipType;
+        if (relationshipType === 'one-to-many') {
+            this.addEntryToEhcache(entityClass + '.' + relationships[idx].relationshipFieldNamePlural);
+        } else if (relationshipType === 'many-to-many') {
+            this.addEntryToEhcache(entityClass + '.' + relationships[idx].relationshipFieldNamePlural);
+        }
+    }
+};
+
+/**
+ * Add a new entry to the ehcache.xml file, for both entities and relationships.
+ *
+ * @param {string} name - the entry (either entity or relationship) to cache.
+ */
+Generator.prototype.addEntryToEhcache = function (entry) {
+    try {
+        var fullPath = SERVER_MAIN_RES_DIR + 'ehcache.xml';
+        jhipsterUtils.rewriteFile({
+            file: fullPath,
+            needle: 'jhipster-needle-ehcache-add-entry',
+            splicable: [`<cache name="${this.packageName}.domain.${entry}"
+        timeToLiveSeconds="3600">
+    </cache>
+`
+            ]
+        }, this);
+    } catch (e) {
+        this.log(chalk.yellow('\nUnable to add ' + entry + ' to ehcache.xml file.\n'));
     }
 };
 
@@ -454,7 +493,7 @@ Generator.prototype.addLiquibaseChangelogToMaster = function (changelogName, nee
             file: fullPath,
             needle: needle,
             splicable: [
-                '<include file="classpath:config/liquibase/changelog/' + changelogName + '.xml" relativeToChangelogFile="false"/>'
+                `<include file="classpath:config/liquibase/changelog/${changelogName}.xml" relativeToChangelogFile="false"/>`
             ]
         }, this);
     } catch (e) {
@@ -496,7 +535,7 @@ Generator.prototype.addSocialButton = function (isUseSass, socialName, socialPar
     var registerfullPath = CLIENT_MAIN_SRC_DIR + 'app/account/register/register.html';
     try {
         this.log(chalk.yellow('\nupdate ') + socialServicefullPath);
-        var serviceCode = 'case \'' + socialName + '\': return \'' + socialParameter + '\';';
+        var serviceCode = `case '${socialName}': return '${socialParameter}';`;
         jhipsterUtils.rewriteFile({
             file: socialServicefullPath,
             needle: 'jhipster-needle-add-social-button',
@@ -505,7 +544,7 @@ Generator.prototype.addSocialButton = function (isUseSass, socialName, socialPar
             ]
         }, this);
 
-        var buttonCode = '<jh-social ng-provider="' + socialName + '"></jh-social>';
+        var buttonCode = `<jh-social ng-provider="${socialName}"></jh-social>`;
         this.log(chalk.yellow('update ') + loginfullPath);
         jhipsterUtils.rewriteFile({
             file: loginfullPath,
@@ -523,16 +562,16 @@ Generator.prototype.addSocialButton = function (isUseSass, socialName, socialPar
             ]
         }, this);
 
-        var buttonStyle = '.jh-btn-' + socialName + ' {\n' +
-            '     background-color: ' + buttonColor + ';\n' +
-            '     border-color: rgba(0, 0, 0, 0.2);\n' +
-            '     color: #fff;\n' +
-            '}\n\n' +
-            '.jh-btn-' + socialName + ':hover, .jh-btn-' + socialName + ':focus, .jh-btn-' + socialName + ':active, .jh-btn-' + socialName + '.active, .open > .dropdown-toggle.jh-btn-' + socialName + ' {\n' +
-            '    background-color: ' + buttonHoverColor + ';\n' +
-            '    border-color: rgba(0, 0, 0, 0.2);\n' +
-            '    color: #fff;\n' +
-            '}';
+        var buttonStyle = `.jh-btn-${socialName} {
+                 background-color: ${buttonColor};
+                 border-color: rgba(0, 0, 0, 0.2);
+                 color: #fff;
+            }\n
+            .jh-btn-${socialName}:hover, .jh-btn-${socialName}:focus, .jh-btn-${socialName}:active, .jh-btn-${socialName}.active, .open > .dropdown-toggle.jh-btn-${socialName} {
+                background-color: ${buttonHoverColor};
+                border-color: rgba(0, 0, 0, 0.2);
+                color: #fff;
+            }`;
         this.addMainCSSStyle(isUseSass, buttonStyle, 'Add sign in style for ' + socialName);
 
     } catch (e) {
@@ -758,7 +797,7 @@ Generator.prototype.addGradlePlugin = function (group, name, version) {
             file: fullPath,
             needle: 'jhipster-needle-gradle-buildscript-dependency',
             splicable: [
-                'classpath \'' + group + ':' + name + ':' + version + '\''
+                `classpath '${group}:${name}:${version}'`
             ]
         }, this);
     } catch (e) {
@@ -781,7 +820,7 @@ Generator.prototype.addGradleDependency = function (scope, group, name, version)
             file: fullPath,
             needle: 'jhipster-needle-gradle-dependency',
             splicable: [
-                scope + ' \'' + group + ':' + name + ':' + version + '\''
+                `${scope} '${group}:${name}:${version}'`
             ]
         }, this);
     } catch (e) {
@@ -801,7 +840,7 @@ Generator.prototype.applyFromGradleScript = function (name) {
             file: fullPath,
             needle: 'jhipster-needle-gradle-apply-from',
             splicable: [
-                'apply from: \'' + name + '.gradle\''
+                `apply from: '${name}.gradle'`
             ]
         }, this);
     } catch (e) {
@@ -836,7 +875,7 @@ Generator.prototype.dateFormatForLiquibase = function () {
     if (second.length === 1) {
         second = '0' + second;
     }
-    return year + '' + month + '' + day + '' + hour + '' + minute + '' + second;
+    return `${year}${month}${day}${hour}${minute}${second}`;
 };
 
 /**
@@ -856,13 +895,13 @@ Generator.prototype.copyTemplate = function (source, dest, action, generator, op
     var regex;
     switch (action) {
     case 'stripHtml' :
-        regex = /( translate\="([a-zA-Z0-9](\.)?)+")|( translate-values\="\{([a-zA-Z]|\d|\:|\{|\}|\[|\]|\-|\'|\s|\.)*?\}")|( translate-compile)|( translate-value-max\="[0-9\{\}\(\)\|]*")/g;
-            //looks for something like translate="foo.bar.message" and translate-values="{foo: '{{ foo.bar }}'}"
+        regex = /( data-translate\="([a-zA-Z0-9\ \+\{\}\'](\.)?)+")|( translate-values\="\{([a-zA-Z]|\d|\:|\{|\}|\[|\]|\-|\'|\s|\.)*?\}")|( translate-compile)|( translate-value-max\="[0-9\{\}\(\)\|]*")/g;
+        //looks for something like data-translate="foo.bar.message" and translate-values="{foo: '{{ foo.bar }}'}"
         jhipsterUtils.copyWebResource(source, dest, regex, 'html', _this, _opt, template);
         break;
     case 'stripJs' :
         regex = /\,[\s\n ]*(resolve)\:[\s ]*[\{][\s\n ]*[a-zA-Z]+\:(\s)*\[[ \'a-zA-Z0-9\$\,\(\)\{\}\n\.\<\%\=\-\>\;\s]*\}\][\s\n ]*\}/g;
-            //looks for something like mainTranslatePartialLoader: [*]
+        //looks for something like mainTranslatePartialLoader: [*]
         jhipsterUtils.copyWebResource(source, dest, regex, 'js', _this, _opt, template);
         break;
     case 'copy' :
@@ -1023,6 +1062,24 @@ Generator.prototype.getModuleHooks = function () {
 };
 
 /**
+ * get a property of an entity from the configuration file
+ * @param {string} file - configuration file name for the entity
+ * @param {string} key - key to read
+ */
+Generator.prototype.getEntityProperty = function (file, key) {
+    var property = null;
+
+    try {
+        var entityJson = this.fs.readJSON(path.join(JHIPSTER_CONFIG_DIR, _.upperFirst(file) + '.json'));
+        property = entityJson[key];
+    } catch (err) {
+        this.log(chalk.red('The Jhipster entity configuration file could not be read!') + err);
+    }
+
+    return property;
+};
+
+/**
  * get sorted list of entities according to changelog date (i.e. the order in which they were added)
  */
 Generator.prototype.getExistingEntities = function () {
@@ -1052,7 +1109,7 @@ Generator.prototype.getExistingEntities = function () {
  */
 Generator.prototype.copyI18nFilesByName = function (generator, webappDir, fileToCopy, lang) {
     var _this = generator || this;
-    _this.copy(webappDir + 'i18n/' + lang + '/' + fileToCopy, webappDir + 'i18n/' + lang + '/' + fileToCopy);
+    _this.copy(`${webappDir}i18n/${lang}/${fileToCopy}`, `${webappDir}i18n/${lang}/${fileToCopy}`);
 };
 
 /**
@@ -1089,6 +1146,358 @@ Generator.prototype.gitExec = function (args, options, callback) {
     }
     var command = 'git ' + args.join(' ');
     shelljs.exec(command, options, callback);
+};
+
+/**
+ * get a table name in JHipster preferred style.
+ *
+ * @param {string} value - table name string
+ */
+Generator.prototype.getTableName = function (value) {
+    return _.snakeCase(value).toLowerCase();
+};
+
+/**
+ * get a table column name in JHipster preferred style.
+ *
+ * @param {string} value - table column name string
+ */
+Generator.prototype.getColumnName = function (value) {
+    return _.snakeCase(value).toLowerCase();
+};
+
+/**
+ * get a table column names plural form in JHipster preferred style.
+ *
+ * @param {string} value - table column name string
+ */
+Generator.prototype.getPluralColumnName = function (value) {
+    return this.getColumnName(pluralize(value));
+};
+
+/**
+ * get a table name for joined tables in JHipster preferred style.
+ *
+ * @param {string} entityName - name of the entity
+ * @param {string} relationshipName - name of the related entity
+ * @param {string} prodDatabaseType - database type
+ */
+Generator.prototype.getJoinTableName = function (entityName, relationshipName, prodDatabaseType) {
+    var joinTableName = this.getTableName(entityName) + '_'+ this.getTableName(relationshipName);
+    var limit = 0;
+    if (prodDatabaseType === 'oracle' && joinTableName.length > 30) {
+        this.warning(`The generated join table "${ joinTableName }" is too long for Oracle (which has a 30 characters limit). It will be truncated!`);
+
+        limit = 30;
+    } else if (prodDatabaseType === 'mysql' && joinTableName.length > 64) {
+        this.warning(`The generated join table "${ joinTableName }" is too long for MySQL (which has a 64 characters limit). It will be truncated!`);
+
+        limit = 64;
+    }
+    if (limit > 0) {
+        var halfLimit = Math.floor(limit/2),
+            entityTable = this.getTableName(entityName.substring(0, halfLimit)),
+            relationTable = this.getTableName(relationshipName.substring(0, halfLimit - 1));
+        return `${entityTable}_${relationTable}`;
+    }
+    return joinTableName;
+};
+
+/**
+ * get a constraint name for tables in JHipster preferred style.
+ *
+ * @param {string} entityName - name of the entity
+ * @param {string} relationshipName - name of the related entity
+ * @param {string} prodDatabaseType - database type
+ * @param {boolean} noSnakeCase - do not convert names to snakecase
+ */
+Generator.prototype.getConstraintName = function (entityName, relationshipName, prodDatabaseType, noSnakeCase) {
+    var constraintName;
+    if (noSnakeCase) {
+        constraintName = `fk_${entityName}_${relationshipName}_id`;
+    } else {
+        constraintName = `fk_${this.getTableName(entityName)}_${this.getTableName(relationshipName)}_id`;
+    }
+    var limit = 0;
+
+    if (prodDatabaseType === 'oracle' && constraintName.length > 30) {
+        this.warning(`The generated constraint name "${ constraintName }" is too long for Oracle (which has a 30 characters limit). It will be truncated!`);
+
+        limit = 28;
+    } else if (prodDatabaseType === 'mysql' && constraintName.length > 64) {
+        this.warning(`The generated constraint name "${ constraintName }" is too long for MySQL (which has a 64 characters limit). It will be truncated!`);
+
+        limit = 62;
+    }
+    if (limit > 0) {
+        var halfLimit = Math.floor(limit/2),
+            entityTable = noSnakeCase ? entityName.substring(0, halfLimit) : this.getTableName(entityName.substring(0, halfLimit)),
+            relationTable = noSnakeCase ? relationshipName.substring(0, halfLimit - 1) : this.getTableName(relationshipName.substring(0, halfLimit - 1));
+        return `${entityTable}_${relationTable}_id`;
+    }
+    return constraintName;
+};
+
+/**
+ * Print an error message.
+ *
+ * @param {string} msg - message to print
+ */
+Generator.prototype.error = function(msg) {
+    this.env.error(chalk.red.bold('ERROR! ') + msg);
+};
+
+/**
+ * Print a warning message.
+ *
+ * @param {string} value - message to print
+ */
+Generator.prototype.warning = function(msg) {
+    this.log(chalk.yellow.bold('WARNING! ') + msg);
+};
+
+/**
+ * Generate a KeyStore for uaa authorization server.
+ */
+Generator.prototype.generateKeyStore = function() {
+    const keyStoreFile = SERVER_MAIN_RES_DIR + 'keystore.jks';
+    if (this.fs.exists(keyStoreFile)) {
+        this.log(chalk.cyan(`\nKeyStore '${keyStoreFile}' already exists. Leaving unchanged.\n`));
+    } else {
+        shelljs.mkdir('-p', SERVER_MAIN_RES_DIR);
+        var parent = this;
+        var javaHome = shelljs.env['JAVA_HOME'];
+        var keytoolPath = '';
+        if (javaHome) {
+            keytoolPath = javaHome + '/bin/';
+        }
+        shelljs.exec(`"${keytoolPath}keytool" -genkey -noprompt ` +
+            '-keyalg RSA ' +
+            '-alias selfsigned ' +
+            `-keystore ${keyStoreFile} ` +
+            '-storepass password ' +
+            '-keypass password ' +
+            '-keysize 2048 ' +
+            `-dname "CN=Java Hipster, OU=Development, O=${this.packageName}, L=, ST=, C="`
+        , function(code) {
+            if (code !== 0) {
+                parent.env.error(chalk.red(`\nFailed to create a KeyStore with \'keytool\'`), code);
+            } else {
+                parent.log(chalk.green(`\nKeyStore '${keyStoreFile}' generated successfully.\n`));
+            }
+        });
+    }
+};
+
+/**
+ * Prints a JHipster logo.
+ */
+Generator.prototype.printJHipsterLogo = function () {
+    this.log(' \n' +
+        chalk.green('        ██') + chalk.red('  ██    ██  ████████  ███████    ██████  ████████  ████████  ███████\n') +
+        chalk.green('        ██') + chalk.red('  ██    ██     ██     ██    ██  ██          ██     ██        ██    ██\n') +
+        chalk.green('        ██') + chalk.red('  ████████     ██     ███████    █████      ██     ██████    ███████\n') +
+        chalk.green('  ██    ██') + chalk.red('  ██    ██     ██     ██             ██     ██     ██        ██   ██\n') +
+        chalk.green('   ██████ ') + chalk.red('  ██    ██  ████████  ██        ██████      ██     ████████  ██    ██\n')
+    );
+    this.log(chalk.white.bold('                            http://jhipster.github.io\n'));
+    if (this.checkInstall) this.checkForNewVersion();
+    this.log(chalk.white('Welcome to the JHipster Generator ') + chalk.yellow('v' + packagejs.version));
+    this.log(chalk.white('Documentation for creating an application: ' + chalk.yellow('https://jhipster.github.io/creating-an-app/')));
+    this.log(chalk.white('Application files will be generated in folder: ' + chalk.yellow(process.cwd())));
+};
+
+/**
+ * Checks if there is a newer JHipster version available.
+ */
+Generator.prototype.checkForNewVersion = function () {
+    try {
+        shelljs.exec('npm show ' + GENERATOR_JHIPSTER + ' version', {silent:true}, function (code, stdout, stderr) {
+            if (!stderr && semver.lt(packagejs.version, stdout)) {
+                this.log(
+                    chalk.yellow(' ______________________________________________________________________________\n\n') +
+                    chalk.yellow('  JHipster update available: ') + chalk.green.bold(stdout.replace('\n','')) + chalk.gray(' (current: ' + packagejs.version + ')') + '\n' +
+                    chalk.yellow('  Run ' + chalk.magenta('npm install -g ' + GENERATOR_JHIPSTER ) + ' to update.\n') +
+                    chalk.yellow(' ______________________________________________________________________________\n')
+                );
+            }
+        }.bind(this));
+    } catch (err) {
+        // fail silently as this function doesnt affect normal generator flow
+    }
+};
+
+/**
+ * get the angular app name for the app.
+ */
+Generator.prototype.getAngularAppName = function () {
+    return _.camelCase(this.baseName, true) + (this.baseName.endsWith('App') ? '' : 'App');
+};
+
+/**
+ * get the java main class name.
+ */
+Generator.prototype.getMainClassName = function () {
+
+    var main = _.upperFirst(this.getAngularAppName());
+    var acceptableForJava = new RegExp('^[A-Z][a-zA-Z0-9_]*$');
+
+    return acceptableForJava.test(main) ? main : 'Application';
+};
+
+/**
+ * ask a prompt for apps name.
+ *
+ * @param {object} generator - generator instance to use
+ */
+Generator.prototype.askModuleName = function (generator) {
+
+    var done = generator.async();
+    var defaultAppBaseName = this.getDefaultAppName();
+    var getNumberedQuestion = this.getNumberedQuestion.bind(this);
+    generator.prompt({
+        type: 'input',
+        name: 'baseName',
+        validate: function (input) {
+            if (!(/^([a-zA-Z0-9_]*)$/.test(input))) {
+                return 'Your application name cannot contain special characters or a blank space';
+            } else if (generator.applicationType === 'microservice' && /_/.test(input)) {
+                return 'Your microservice name cannot contain underscores as this does not meet the URI spec';
+            } else if (input === 'application') {
+                return 'Your application name cannot be named \'application\' as this is a reserved name for Spring Boot';
+            }
+            return true;
+        },
+        message: function (response) {
+            return getNumberedQuestion('What is the base name of your application?', true);
+        },
+        default: defaultAppBaseName
+    }).then(function (prompt) {
+        generator.baseName = prompt.baseName;
+        done();
+    }.bind(generator));
+};
+
+/**
+ * ask a prompt for i18n option.
+ *
+ * @param {object} generator - generator instance to use
+ */
+Generator.prototype.aski18n = function (generator) {
+
+    var languageOptions = this.getAllSupportedLanguageOptions();
+    var getNumberedQuestion = this.getNumberedQuestion.bind(this);
+
+    var done = generator.async();
+    var prompts = [
+        {
+            type: 'confirm',
+            name: 'enableTranslation',
+            message: function (response) {
+                return getNumberedQuestion('Would you like to enable internationalization support?', true);
+            },
+            default: true
+        },
+        {
+            when: function (response) {
+                return response.enableTranslation === true;
+            },
+            type: 'list',
+            name: 'nativeLanguage',
+            message: 'Please choose the native language of the application?',
+            choices: languageOptions,
+            default: 'en',
+            store: true
+        },
+        {
+            when: function (response) {
+                return response.enableTranslation === true;
+            },
+            type: 'checkbox',
+            name: 'languages',
+            message: 'Please choose additional languages to install',
+            choices: function (response) {
+                return _.filter(languageOptions, function (o) {
+                    return o.value !== response.nativeLanguage;
+                });
+            }
+        }
+    ];
+
+    generator.prompt(prompts).then(function (prompt) {
+        generator.enableTranslation = prompt.enableTranslation;
+        generator.nativeLanguage = prompt.nativeLanguage;
+        generator.languages = [prompt.nativeLanguage].concat(prompt.languages);
+        done();
+    }.bind(generator));
+};
+
+/**
+ * compose using the language sub generator.
+ *
+ * @param {object} generator - generator instance to use
+ * @param {object} configOptions - options to pass to the generator
+ * @param {String} type - server | client
+ */
+Generator.prototype.composeLanguagesSub = function (generator, configOptions, type) {
+    if (generator.enableTranslation) {
+        // skip server if app type is client
+        var skipServer = type && type === 'client';
+        // skip client if app type is server
+        var skipClient = type && type === 'server';
+        generator.composeWith('jhipster:languages', {
+            options: {
+                'skip-install': true,
+                'skip-server': skipServer,
+                'skip-client': skipClient,
+                configOptions: configOptions,
+                force: generator.options['force']
+            },
+            args: generator.languages
+        }, {
+            local: require.resolve('./languages')
+        });
+    }
+};
+
+/**
+ * Add numbering to a question
+ *
+ * @param {String} msg - question text
+ * @param {boolean} cond - increment question
+ */
+Generator.prototype.getNumberedQuestion = function (msg, cond) {
+    var order;
+    if (cond) {
+        ++this.currentQuestion;
+    }
+    order = `(${this.currentQuestion}/${this.totalQuestions}) `;
+    return order + msg;
+};
+
+/**
+ * build a generated application.
+ *
+ * @param {String} buildTool - maven | gradle
+ * @param {String} profile - dev | prod
+ * @param {Function} cb - callback when build is complete
+ */
+Generator.prototype.buildApplication = function (buildTool, profile, cb) {
+    var buildCmd = 'mvnw package -DskipTests=true -B';
+
+    if (buildTool === 'gradle') {
+        buildCmd = 'gradlew bootRepackage -x test';
+    }
+
+    if (os.platform() !== 'win32') {
+        buildCmd = './' + buildCmd;
+    }
+    buildCmd += ' -P' + profile;
+    var child = {};
+    child.stdout = exec(buildCmd, cb).stdout;
+    child.buildCmd = buildCmd;
+
+    return child;
 };
 
 /*========================================================================*/
@@ -1176,18 +1585,6 @@ Generator.prototype.updateLanguagesInLanguageConstant = function (languages) {
     }
 };
 
-Generator.prototype.getTableName = function (value) {
-    return _.snakeCase(value).toLowerCase();
-};
-
-Generator.prototype.getColumnName = function (value) {
-    return _.snakeCase(value).toLowerCase();
-};
-
-Generator.prototype.getPluralColumnName = function (value) {
-    return this.getColumnName(pluralize(value));
-};
-
 Generator.prototype.insight = function () {
     var insight = new Insight({
         trackingCode: 'UA-46075199-2',
@@ -1242,166 +1639,6 @@ Generator.prototype.formatAsApiModelProperty = function (text) {
     return jhipsterUtils.wordwrap(text.replace(/\\/g, '\\\\').replace(/\"/g, '\\\"'), WORD_WRAP_WIDTH - 13, '"\n        + "', true);
 };
 
-Generator.prototype.printJHipsterLogo = function () {
-    this.log(' \n' +
-        chalk.green('        ██') + chalk.red('  ██    ██  ████████  ███████    ██████  ████████  ████████  ███████\n') +
-        chalk.green('        ██') + chalk.red('  ██    ██     ██     ██    ██  ██          ██     ██        ██    ██\n') +
-        chalk.green('        ██') + chalk.red('  ████████     ██     ███████    █████      ██     ██████    ███████\n') +
-        chalk.green('  ██    ██') + chalk.red('  ██    ██     ██     ██             ██     ██     ██        ██   ██\n') +
-        chalk.green('   ██████ ') + chalk.red('  ██    ██  ████████  ██        ██████      ██     ████████  ██    ██\n')
-    );
-    this.log(chalk.white.bold('                            http://jhipster.github.io\n'));
-    if (this.checkInstall) this.checkForNewVersion();
-    this.log(chalk.white('Welcome to the JHipster Generator ') + chalk.yellow('v' + packagejs.version));
-    this.log(chalk.white('Application files will be generated in folder: ' + chalk.yellow(process.cwd())));
-};
-
-Generator.prototype.checkForNewVersion = function () {
-    try {
-        shelljs.exec('npm show ' + GENERATOR_JHIPSTER + ' version', {silent:true}, function (code, stdout, stderr) {
-            if (!stderr && semver.lt(packagejs.version, stdout)) {
-                this.log(
-                    chalk.yellow(' ______________________________________________________________________________\n\n') +
-                    chalk.yellow('  JHipster update available: ') + chalk.green.bold(stdout.replace('\n','')) + chalk.gray(' (current: ' + packagejs.version + ')') + '\n' +
-                    chalk.yellow('  Run ' + chalk.magenta('npm install -g ' + GENERATOR_JHIPSTER ) + ' to update.\n') +
-                    chalk.yellow(' ______________________________________________________________________________\n')
-                );
-            }
-        }.bind(this));
-    } catch (err) {
-        // fail silently as this function doesnt affect normal generator flow
-    }
-};
-
-Generator.prototype.getAngularAppName = function () {
-    return _.camelCase(this.baseName, true) + (this.baseName.endsWith('App') ? '' : 'App');
-};
-
-Generator.prototype.getMainClassName = function () {
-    return _.upperFirst(this.getAngularAppName());
-};
-
-Generator.prototype.askModuleName = function (generator) {
-
-    var done = generator.async();
-    var defaultAppBaseName = this.getDefaultAppName();
-    var getNumberedQuestion = this.getNumberedQuestion.bind(this);
-    generator.prompt({
-        type: 'input',
-        name: 'baseName',
-        validate: function (input) {
-            if (/^([a-zA-Z0-9_]*)$/.test(input) && input !== 'application') return true;
-            if (input === 'application') {
-                return 'Your application name cannot be named \'application\' as this is a reserved name for Spring Boot';
-            }
-            return 'Your application name cannot contain special characters or a blank space, using the default name instead';
-        },
-        message: function (response) {
-            return getNumberedQuestion('What is the base name of your application?', true);
-        },
-        default: defaultAppBaseName
-    }, function (prompt) {
-        generator.baseName = prompt.baseName;
-        done();
-    }.bind(generator));
-};
-
-Generator.prototype.aski18n = function (generator) {
-
-    var languageOptions = this.getAllSupportedLanguageOptions();
-    var getNumberedQuestion = this.getNumberedQuestion.bind(this);
-
-    var done = generator.async();
-    var prompts = [
-        {
-            type: 'confirm',
-            name: 'enableTranslation',
-            message: function (response) {
-                return getNumberedQuestion('Would you like to enable internationalization support?', true);
-            },
-            default: true
-        },
-        {
-            when: function (response) {
-                return response.enableTranslation === true;
-            },
-            type: 'list',
-            name: 'nativeLanguage',
-            message: 'Please choose the native language of the application?',
-            choices: languageOptions,
-            default: 'en',
-            store: true
-        },
-        {
-            when: function (response) {
-                return response.enableTranslation === true;
-            },
-            type: 'checkbox',
-            name: 'languages',
-            message: 'Please choose additional languages to install',
-            choices: function (response) {
-                return _.filter(languageOptions, function (o) {
-                    return o.value !== response.nativeLanguage;
-                });
-            }
-        }
-    ];
-
-    generator.prompt(prompts, function (prompt) {
-        generator.enableTranslation = prompt.enableTranslation;
-        generator.nativeLanguage = prompt.nativeLanguage;
-        generator.languages = [prompt.nativeLanguage].concat(prompt.languages);
-        done();
-    }.bind(generator));
-};
-
-Generator.prototype.composeLanguagesSub = function (generator, configOptions, type) {
-    if (generator.enableTranslation) {
-        // skip server if app type is client
-        var skipServer = type && type === 'client';
-        // skip client if app type is server
-        var skipClient = type && type === 'server';
-        generator.composeWith('jhipster:languages', {
-            options: {
-                'skip-install': true,
-                'skip-server': skipServer,
-                'skip-client': skipClient,
-                configOptions: configOptions
-            },
-            args: generator.languages
-        }, {
-            local: require.resolve('./languages')
-        });
-    }
-};
-
-Generator.prototype.getNumberedQuestion = function (msg, cond) {
-    var order;
-    if (cond) {
-        ++this.currentQuestion;
-    }
-    order = '(' + this.currentQuestion + '/' + this.totalQuestions + ') ';
-    return order + msg;
-};
-
-Generator.prototype.buildApplication = function (buildTool, profile, cb) {
-    var buildCmd = 'mvnw package -DskipTests=true -B';
-
-    if (buildTool === 'gradle') {
-        buildCmd = 'gradlew bootRepackage -x test';
-    }
-
-    if (os.platform() !== 'win32') {
-        buildCmd = './' + buildCmd;
-    }
-    buildCmd += ' -P' + profile;
-    var child = {};
-    child.stdout = exec(buildCmd, cb).stdout;
-    child.buildCmd = buildCmd;
-
-    return child;
-};
-
 Generator.prototype.isNumber = function (input) {
     if (isNaN(this.filterNumber(input))) {
         return false;
@@ -1433,14 +1670,6 @@ Generator.prototype.filterNumber = function (input, isSigned, isDecimal) {
     return NaN;
 };
 
-Generator.prototype.error = function(msg) {
-    this.env.error(chalk.red.bold('ERROR! ') + msg);
-};
-
-Generator.prototype.warning = function(msg) {
-    this.log(chalk.yellow.bold('WARNING! ') + msg);
-};
-
 Generator.prototype.isGitInstalled = function (callback) {
     this.gitExec('--version', function (code) {
         if (code !== 0) {
@@ -1450,6 +1679,17 @@ Generator.prototype.isGitInstalled = function (callback) {
         }
         callback && callback(code);
     }.bind(this));
+};
+
+Generator.prototype.getOptionFromArray = function (array, option) {
+    let optionValue = false;
+    array.forEach(function (value) {
+        if (_.includes(value, option)) {
+            optionValue = value.split(':')[1];
+        }
+    });
+    optionValue = optionValue === 'true' ? true : optionValue;
+    return optionValue;
 };
 
 Generator.prototype.contains = _.includes;

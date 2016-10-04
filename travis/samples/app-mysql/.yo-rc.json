@@ -2,16 +2,16 @@
   "generator-jhipster": {
     "applicationType": "monolith",
     "baseName": "travisMysql",
-    "packageName": "com.mycompany.myapp",
-    "packageFolder": "com/mycompany/myapp",
+    "packageName": "io.github.jhipster.travis",
+    "packageFolder": "io/github/jhipster/travis",
     "authenticationType": "session",
     "hibernateCache": "ehcache",
-    "clusteredHttpSession": "no",
-    "websocket": "no",
+    "clusteredHttpSession": false,
+    "websocket": false,
     "databaseType": "sql",
     "devDatabaseType": "mysql",
     "prodDatabaseType": "mysql",
-    "searchEngine": "no",
+    "searchEngine": false,
     "useSass": false,
     "buildTool": "maven",
     "enableTranslation": true,
@@ -23,6 +23,8 @@
       "gatling",
       "protractor"
     ],
+    "serverPort": "8080",
+    "jhiPrefix": "jhi",
     "travis": true
   }
 }

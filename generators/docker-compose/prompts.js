@@ -8,6 +8,7 @@ module.exports = {
     askForApps,
     askForClustersMode,
     askForElk,
+    askForServiceDiscovery,
     askForAdminPassword
 };
 
@@ -15,16 +16,22 @@ function askForPath() {
     if (this.regenerate) return;
 
     var done = this.async();
-
+    var kubernetesApplicationType = this.kubernetesApplicationType;
+    var messageAskForPath;
+    if (kubernetesApplicationType === 'monolith') {
+        messageAskForPath = 'Enter the root directory where your applications are located';
+    } else {
+        messageAskForPath = 'Enter the root directory where your gateway(s) and microservices are located';
+    }
     var prompts = [{
         type: 'input',
         name: 'directoryPath',
-        message: 'Enter the root directory where your gateway(s) and microservices are located',
+        message: messageAskForPath,
         default: this.directoryPath || '../',
         validate: function (input) {
             var path = this.destinationPath(input);
             if(shelljs.test('-d', path)) {
-                var appsFolders = getAppFolders.call(this, input);
+                var appsFolders = getAppFolders.call(this, input, kubernetesApplicationType);
 
                 if(appsFolders.length === 0) {
                     return 'No microservice or gateway found in ' + path;
@@ -37,10 +44,10 @@ function askForPath() {
         }.bind(this)
     }];
 
-    this.prompt(prompts, function (props) {
+    this.prompt(prompts).then(function (props) {
         this.directoryPath = props.directoryPath;
 
-        this.appsFolders = getAppFolders.call(this, this.directoryPath);
+        this.appsFolders = getAppFolders.call(this, this.directoryPath, kubernetesApplicationType);
 
         //Removing registry from appsFolders, using reverse for loop
         for(var i = this.appsFolders.length - 1; i >= 0; i--) {
@@ -59,11 +66,18 @@ function askForApps() {
     if (this.regenerate) return;
 
     var done = this.async();
+    var kubernetesApplicationType = this.kubernetesApplicationType;
+    var messageAskForApps;
+    if (kubernetesApplicationType === undefined) {
+        messageAskForApps = 'Which applications do you want to include in your Docker Compose configuration?';
+    } else {
+        messageAskForApps = 'Which applications do you want to include in your Kubernetes configuration?';
+    }
 
     var prompts = [{
         type: 'checkbox',
         name: 'chosenApps',
-        message: 'Which applications do you want to include in your Docker Compose configuration?',
+        message: messageAskForApps,
         choices: this.appsFolders,
         default: this.defaultAppsFolders,
         validate: function (input) {
@@ -73,7 +87,7 @@ function askForApps() {
         }
     }];
 
-    this.prompt(prompts, function (props) {
+    this.prompt(prompts).then(function (props) {
         this.appsFolders = props.chosenApps;
 
         this.appConfigs = [];
@@ -124,7 +138,7 @@ function askForClustersMode() {
         default: this.clusteredDbApps
     }];
 
-    this.prompt(prompts, function (props) {
+    this.prompt(prompts).then(function (props) {
         this.clusteredDbApps = props.clusteredDbApps;
         for (var i = 0; i < this.appsFolders.length; i++) {
             for (var j = 0; j < props.clusteredDbApps.length; j++) {
@@ -148,14 +162,75 @@ function askForElk() {
         default: this.useElk && true
     }];
 
-    this.prompt(prompts, function(props) {
+    this.prompt(prompts).then(function(props) {
         this.useElk = props.elk;
         done();
     }.bind(this));
 }
 
+function askForServiceDiscovery() {
+    if (this.regenerate || this.kubernetesApplicationType === 'monolith') return;
+
+    var done = this.async();
+
+    var serviceDiscoveryEnabledApps = [];
+    this.appConfigs.forEach(function (appConfig, index) {
+        if(appConfig.serviceDiscoveryType !== 'no' && (appConfig.applicationType === 'microservice' || appConfig.applicationType === 'gateway')) {
+            serviceDiscoveryEnabledApps.push({baseName: appConfig.baseName, serviceDiscoveryType: appConfig.serviceDiscoveryType});
+        }
+    }, this);
+
+    if(serviceDiscoveryEnabledApps.length === 0) {
+        return;
+    }
+
+    if(serviceDiscoveryEnabledApps.every(app => app.serviceDiscoveryType === 'consul')){
+        this.serviceDiscoveryType = 'consul';
+        this.log(chalk.green('Consul detected as the service discovery and configuration provider used by your apps'));
+        done();
+    }
+    else if(serviceDiscoveryEnabledApps.every(app => app.serviceDiscoveryType === 'eureka')){
+        this.serviceDiscoveryType = 'eureka';
+        this.log(chalk.green('JHipster registry detected as the service discovery and configuration provider used by your apps'));
+        done();
+    }
+    else {
+        this.log(chalk.yellow('Unable to determine the service discovery and configuration provider to use from your apps configuration.'));
+        this.log('Your service discovery enabled apps:');
+        serviceDiscoveryEnabledApps.forEach(function(app){
+            this.log(` -${app.baseName} (${app.serviceDiscoveryType})`);
+        }.bind(this));
+
+        var prompts = [{
+            type: 'list',
+            name: 'serviceDiscoveryType',
+            message: 'Which Service Discovery registry and Configuration server would you like to use ?',
+            choices: [
+                {
+                    value: 'eureka',
+                    name: 'JHipster Registry'
+                },
+                {
+                    value: 'consul',
+                    name: 'Consul'
+                },
+                {
+                    value: 'no',
+                    name: 'No Service Discovery and Configuration'
+                }
+            ],
+            default: 'eureka'
+        }];
+
+        this.prompt(prompts).then(function(props) {
+            this.serviceDiscoveryType = props.serviceDiscoveryType;
+            done();
+        }.bind(this));
+    }
+}
+
 function askForAdminPassword() {
-    if (this.regenerate) return;
+    if (this.regenerate || this.kubernetesApplicationType === 'monolith' || this.serviceDiscoveryType !== 'eureka') return;
 
     var done = this.async();
 
@@ -171,13 +246,13 @@ function askForAdminPassword() {
         }
     }];
 
-    this.prompt(prompts, function(props) {
+    this.prompt(prompts).then(function(props) {
         this.adminPassword = props.adminPassword;
         done();
     }.bind(this));
 }
 
-function getAppFolders(input) {
+function getAppFolders(input, applicationType) {
     var files = shelljs.ls('-l', this.destinationPath(input));
     var appsFolders = [];
 
@@ -187,7 +262,10 @@ function getAppFolders(input) {
                 && (shelljs.test('-f', input + file.name + '/src/main/docker/app.yml')) ) {
                 try {
                     var fileData = this.fs.readJSON(input + file.name + '/.yo-rc.json');
-                    if(fileData['generator-jhipster'].baseName !== undefined) {
+                    if ((fileData['generator-jhipster'].baseName !== undefined)
+                        && ((applicationType === undefined)
+                            || (applicationType === fileData['generator-jhipster'].applicationType)
+                            || ((applicationType === 'microservice') && ('gateway' === fileData['generator-jhipster'].applicationType)))) {
                         appsFolders.push(file.name.match(/([^\/]*)\/*$/)[1]);
                     }
                 } catch(err) {

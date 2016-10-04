@@ -6,8 +6,8 @@
     "packageFolder": "com/mycompany/myapp",
     "authenticationType": "session",
     "hibernateCache": "ehcache",
-    "clusteredHttpSession": "no",
-    "websocket": "no",
+    "clusteredHttpSession": false,
+    "websocket": false,
     "databaseType": "sql",
     "devDatabaseType": "postgresql",
     "prodDatabaseType": "postgresql",
@@ -21,6 +21,8 @@
       "gatling",
       "protractor"
     ],
+    "serverPort": "8080",
+    "jhiPrefix": "jhi",
     "travis": true
   }
 }

@@ -1,5 +1,5 @@
 // Karma configuration
-// http://karma-runner.github.io/0.10/config/configuration-file.html
+// http://karma-runner.github.io/0.13/config/configuration-file.html
 
 var sourcePreprocessors = ['coverage'];
 
@@ -15,7 +15,7 @@ if (isDebug()) {
 module.exports = function (config) {
     config.set({
         // base path, that will be used to resolve files and exclude
-        basePath: '<%= TEST_SRC_DIR %>'.replace(/[^/]+/g,'..'),
+        basePath: '<%= TEST_SRC_DIR %>'.replace(/[^/]+/g, '..'),
 
         // testing framework to use (jasmine/mocha/qunit/...)
         frameworks: ['jasmine'],
@@ -41,16 +41,14 @@ module.exports = function (config) {
             './**/*.js': sourcePreprocessors
         },
 
-        reporters: ['dots', 'jenkins', 'coverage', 'progress'],
+        reporters: ['dots', 'junit', 'coverage', 'progress'],
 
-        jenkinsReporter: {
-            <% if (buildTool == 'maven') { %>
-            outputFile: 'target/test-results/karma/TESTS-results.xml'<% } else { %>
-            outputFile: 'build/test-results/karma/TESTS-results.xml'<% } %>
+        junitReporter: {<% if (buildTool == 'maven') { %>
+            outputFile: '../target/test-results/karma/TESTS-results.xml'<% } else { %>
+            outputFile: '../build/test-results/karma/TESTS-results.xml'<% } %>
         },
 
-        coverageReporter: {
-            <% if (buildTool == 'maven') { %>
+        coverageReporter: {<% if (buildTool == 'maven') { %>
             dir: 'target/test-results/coverage',<% } else { %>
             dir: 'build/test-results/coverage',<% } %>
             reporters: [
@@ -83,8 +81,8 @@ module.exports = function (config) {
         singleRun: false,
 
         // to avoid DISCONNECTED messages when connecting to slow virtual machines
-        browserDisconnectTimeout : 10000, // default 2000
-        browserDisconnectTolerance : 1, // default 0
-        browserNoActivityTimeout : 4*60*1000 //default 10000
+        browserDisconnectTimeout: 10000, // default 2000
+        browserDisconnectTolerance: 1, // default 0
+        browserNoActivityTimeout: 4 * 60 * 1000 //default 10000
     });
 };

@@ -22,7 +22,6 @@
 *.pydevproject
 .project
 .metadata
-/bin/**
 /tmp/**
 /tmp/**/*
 *.tmp
@@ -56,6 +55,11 @@ local.properties
 *.ipr
 *.ids
 *.orig
+
+######################
+# Visual Studio Code
+######################
+.vscode/**
 
 ######################
 # Maven

@@ -13,7 +13,7 @@
 eureka:
 <%_ if (applicationType != 'gateway') { _%>
     instance:
-        hostname: <%= herokuDeployedName %>.herokuapp.com
+        hostname: <%= herokuAppName %>.herokuapp.com
         non-secure-port: 80
         prefer-ip-address: false
 <%_ } _%>
@@ -22,9 +22,13 @@ eureka:
             defaultZone: ${JHIPSTER_REGISTRY_URL}/eureka/
 
 spring:
-<%_ if (prodDatabaseType === 'postgresql' || prodDatabaseType === 'mysql') { _%>
+<%_ if (prodDatabaseType === 'postgresql' || prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { _%>
     datasource:
+        type: com.zaxxer.hikari.HikariDataSource
         maximumPoolSize: 10
+        url: ${JDBC_DATABASE_URL}
+        username: ${JDBC_DATABASE_USERNAME}
+        password: ${JDBC_DATABASE_PASSWORD}
 <%_ } else if (prodDatabaseType === 'mongodb') { _%>
     data:
         mongodb:

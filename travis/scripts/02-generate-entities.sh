@@ -38,7 +38,20 @@ elif [ "$JHIPSTER" == "app-cassandra" ]; then
   moveEntity CassTestServiceClassEntity
   moveEntity CassTestServiceImplEntity
 
-elif [ "$JHIPSTER" == "app-microservice" ]; then
+elif [ "$JHIPSTER" == "app-microservice-eureka" ]; then
+  moveEntity MicroserviceBankAccount
+  moveEntity MicroserviceOperation
+  moveEntity MicroserviceLabel
+
+  moveEntity FieldTestEntity
+  moveEntity FieldTestMapstructEntity
+  moveEntity FieldTestServiceClassEntity
+  moveEntity FieldTestServiceImplEntity
+  moveEntity FieldTestInfiniteScrollEntity
+  moveEntity FieldTestPagerEntity
+  moveEntity FieldTestPaginationEntity
+
+elif [ "$JHIPSTER" == "app-microservice-consul" ]; then
   moveEntity MicroserviceBankAccount
   moveEntity MicroserviceOperation
   moveEntity MicroserviceLabel
@@ -74,6 +87,20 @@ elif [[ ("$JHIPSTER" == "app-mysql") || ("$JHIPSTER" == "app-psql-es-noi18n") ]]
   moveEntity TestManyToOne
   moveEntity TestManyToMany
   moveEntity TestOneToOne
+  moveEntity TestCustomTableName
+  moveEntity TestTwoRelationshipsSameEntity
+
+  moveEntity EntityWithDTO
+  moveEntity EntityWithPagination
+  moveEntity EntityWithPaginationAndDTO
+  moveEntity EntityWithServiceClass
+  moveEntity EntityWithServiceClassAndDTO
+  moveEntity EntityWithServiceClassAndPagination
+  moveEntity EntityWithServiceClassPaginationAndDTO
+  moveEntity EntityWithServiceImpl
+  moveEntity EntityWithServiceImplAndDTO
+  moveEntity EntityWithServiceImplAndPagination
+  moveEntity EntityWithServiceImplPaginationAndDTO
 
 else
   moveEntity BankAccount
@@ -87,6 +114,18 @@ else
   moveEntity FieldTestInfiniteScrollEntity
   moveEntity FieldTestPagerEntity
   moveEntity FieldTestPaginationEntity
+
+  moveEntity EntityWithDTO
+  moveEntity EntityWithPagination
+  moveEntity EntityWithPaginationAndDTO
+  moveEntity EntityWithServiceClass
+  moveEntity EntityWithServiceClassAndDTO
+  moveEntity EntityWithServiceClassAndPagination
+  moveEntity EntityWithServiceClassPaginationAndDTO
+  moveEntity EntityWithServiceImpl
+  moveEntity EntityWithServiceImplAndDTO
+  moveEntity EntityWithServiceImplAndPagination
+  moveEntity EntityWithServiceImplPaginationAndDTO
 fi
 
 ls -l "$HOME"/app/.jhipster/
@@ -127,12 +166,26 @@ generateEntity TestPagination
 generateEntity TestManyToOne
 generateEntity TestManyToMany
 generateEntity TestOneToOne
+generateEntity TestCustomTableName
+generateEntity TestTwoRelationshipsSameEntity
+
+generateEntity EntityWithDTO
+generateEntity EntityWithPagination
+generateEntity EntityWithPaginationAndDTO
+generateEntity EntityWithServiceClass
+generateEntity EntityWithServiceClassAndDTO
+generateEntity EntityWithServiceClassAndPagination
+generateEntity EntityWithServiceClassPaginationAndDTO
+generateEntity EntityWithServiceImpl
+generateEntity EntityWithServiceImplAndDTO
+generateEntity EntityWithServiceImplAndPagination
+generateEntity EntityWithServiceImplPaginationAndDTO
 
 #-------------------------------------------------------------------------------
 # Check Javadoc generation
 #-------------------------------------------------------------------------------
-if [ "$JHIPSTER" != "app-gradle" ]; then
+if [ -f "mvnw" ]; then
   ./mvnw javadoc:javadoc
-else
+elif [ -f "gradlew" ]; then
   ./gradlew javadoc
 fi

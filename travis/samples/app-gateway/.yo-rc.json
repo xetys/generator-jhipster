@@ -2,16 +2,17 @@
   "generator-jhipster": {
     "applicationType": "gateway",
     "baseName": "travisDefault",
-    "packageName": "com.mycompany.myapp",
-    "packageFolder": "com/mycompany/myapp",
+    "packageName": "io.github.jhipster.travis",
+    "packageFolder": "io/github/jhipster/travis",
     "authenticationType": "jwt",
     "hibernateCache": "ehcache",
-    "clusteredHttpSession": "no",
-    "websocket": "no",
+    "clusteredHttpSession": false,
+    "websocket": false,
     "databaseType": "sql",
     "devDatabaseType": "h2Disk",
     "prodDatabaseType": "mysql",
-    "searchEngine": "no",
+    "searchEngine": false,
+    "serviceDiscoveryType": "eureka",
     "useSass": false,
     "buildTool": "maven",
     "enableTranslation": true,
@@ -22,6 +23,8 @@
     "testFrameworks": [
       "gatling"
     ],
+    "serverPort": "8080",
+    "jhiPrefix": "jhi",
     "travis": true
   }
 }

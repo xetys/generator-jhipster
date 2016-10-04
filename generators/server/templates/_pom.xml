@@ -5,7 +5,7 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>1.3.5.RELEASE</version>
+        <version>1.4.1.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -29,16 +29,14 @@
     </prerequisites>
 
     <properties>
-        <%_ if (databaseType === 'sql') { _%>
-        <hikaricp.version>2.4.6</hikaricp.version>
-        <%_ } _%>
-        <assertj-core.version>3.3.0</assertj-core.version>
+        <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m</argLine>
+        <assertj-core.version>3.5.2</assertj-core.version>
         <awaitility.version>1.7.0</awaitility.version>
         <%_ if (databaseType === 'cassandra' || applicationType === 'gateway') { _%>
         <commons-codec.version>1.10</commons-codec.version>
         <%_ } _%>
-        <commons-io.version>2.4</commons-io.version>
-        <commons-lang.version>2.6</commons-lang.version>
+        <commons-io.version>2.5</commons-io.version>
+        <commons-lang.version>3.4</commons-lang.version>
         <%_ if (testFrameworks.indexOf('cucumber') != -1) { _%>
         <cucumber.version>1.2.4</cucumber.version>
         <%_ } _%>
@@ -50,10 +48,13 @@
         <gatling-maven-plugin.version>2.1.7</gatling-maven-plugin.version>
         <%_ } _%>
         <%_ if (clusteredHttpSession === 'hazelcast' || hibernateCache === 'hazelcast') { _%>
-        <hazelcast.version>3.6.1</hazelcast.version>
+        <hazelcast.version>3.6.5</hazelcast.version>
         <%_ } _%>
         <%_ if (databaseType === 'sql') { _%>
         <hibernate.version>4.3.11.Final</hibernate.version>
+        <%_ } _%>
+        <%_ if (databaseType === 'sql') { _%>
+        <hikaricp.version>2.4.6</hikaricp.version>
         <%_ } _%>
         <%_ if (databaseType === 'cassandra' || applicationType === 'gateway') { _%>
         <datastax-driver.version>3.0.1</datastax-driver.version>
@@ -62,12 +63,15 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <javax.inject.version>1</javax.inject.version>
+        <%_ if (searchEngine === 'elasticsearch') { _%>
+        <jna.version>4.2.2</jna.version>
+        <%_ } _%>
         <%_ if (devDatabaseType === 'mariadb' || prodDatabaseType === 'mariadb') { _%>
         <mariadb.version>1.4.4</mariadb.version>
         <%_ } _%>
         <%_ if (databaseType === 'sql') { _%>
         <liquibase.version>3.4.2</liquibase.version>
-        <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
+        <liquibase-slf4j.version>2.0.0</liquibase-slf4j.version>
         <liquibase-hibernate4.version>3.5</liquibase-hibernate4.version>
         <%_ } _%>
         <%_ if (databaseType === 'cassandra' || applicationType === 'gateway') { _%>
@@ -76,22 +80,26 @@
         <mapstruct.version>1.0.0.Final</mapstruct.version>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+        <maven-resources-plugin.version>3.0.1</maven-resources-plugin.version>
         <sortpom-maven-plugin.version>2.5.0</sortpom-maven-plugin.version>
         <metrics-spark-reporter.version>1.2</metrics-spark-reporter.version>
         <metrics-spring.version>3.1.3</metrics-spring.version>
-        <logstash-logback-encoder.version>4.6</logstash-logback-encoder.version>
+        <logstash-logback-encoder.version>4.7</logstash-logback-encoder.version>
         <%_ if (devDatabaseType === 'postgresql' || prodDatabaseType === 'postgresql') { _%>
         <postgresql.version>9.4-1203-jdbc42</postgresql.version>
         <%_ } _%>
         <run.addResources>false</run.addResources>
         <%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa') { _%>
-        <spring-cloud.version>Brixton.RELEASE</spring-cloud.version>
+        <spring-cloud.version>Brixton.SR5</spring-cloud.version>
+        <%_ } _%>
+        <%_ if (messageBroker === 'kafka') { _%>
+        <spring-cloud-stream.version>Brooklyn.RELEASE</spring-cloud-stream.version>
         <%_ } _%>
         <spring-security.version>4.1.0.RELEASE</spring-security.version>
         <%_ if (authenticationType === 'oauth2' || authenticationType === 'uaa') { _%>
         <spring-security-oauth2.version>2.0.9.RELEASE</spring-security-oauth2.version>
         <%_ } _%>
-        <springfox.version>2.4.0</springfox.version>
+        <springfox.version>2.5.0</springfox.version>
         <%_ if (enableSocialSignIn) { _%>
         <!-- Spring social -->
         <httpclient.version>4.5.1</httpclient.version>
@@ -102,8 +110,8 @@
         <%_ } _%>
         <!-- Sonar properties -->
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
-        <sonar-maven-plugin.version>3.0.2</sonar-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>3.2</sonar-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
         <sonar.exclusions><%= CLIENT_MAIN_SRC_DIR %>content/**/*.*, <%= CLIENT_MAIN_SRC_DIR %>bower_components/**/*.*, <%= CLIENT_DIST_DIR %>**/*.*</sonar.exclusions>
         <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
         <sonar.jacoco.itReportPath>${project.testresult.directory}/coverage/jacoco/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -117,12 +125,13 @@
         <sonar.tests>${project.basedir}/<%= TEST_DIR %></sonar.tests>
         <!-- These remain empty unless the corresponding profile is active -->
         <profile.no-liquibase></profile.no-liquibase>
-        <profile.no-swagger></profile.no-swagger>
+        <profile.swagger></profile.swagger>
     </properties>
 
-    <%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa') { _%>
+<%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa' || messageBroker === 'kafka') { _%>
     <dependencyManagement>
         <dependencies>
+            <%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa') { _%>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -130,9 +139,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <%_ } _%>
+            <%_ if (messageBroker === 'kafka') { _%>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-stream-dependencies</artifactId>
+                <version>${spring-cloud-stream.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <%_ } _%>
         </dependencies>
     </dependencyManagement>
-    <%_ } _%>
+<%_ } _%>
 
     <dependencies>
         <dependency>
@@ -298,13 +317,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- The HikariCP Java Agent is disabled by default, as it is experimental
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP-agent</artifactId>
-            <version>${HikariCP.version}</version>
-        </dependency>
-        -->
         <%_ } %>
         <%_ if (databaseType === 'cassandra' || applicationType === 'gateway') { _%>
         <dependency>
@@ -319,8 +331,8 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <version>${commons-lang.version}</version>
         </dependency>
         <%_ if (databaseType === 'mongodb') { _%>
@@ -403,6 +415,7 @@
             </exclusions>
         </dependency>
         <%_ } _%>
+        <%_ if (databaseType === 'sql') { _%>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-envers</artifactId>
@@ -411,7 +424,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-        <%_ if (databaseType === 'sql') { _%>
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
@@ -477,11 +489,32 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
         <%_ } _%>
         <%_ if (databaseType === 'mongodb') { _%>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (messageBroker === 'kafka') { _%>
+        <!-- Kafka support -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream-binder-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream-test-support</artifactId>
+            <scope>test</scope>
         </dependency>
         <%_ } _%>
         <dependency>
@@ -499,6 +532,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -594,10 +637,26 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <%_ if (serviceDiscoveryType == 'eureka') { _%>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (serviceDiscoveryType == 'consul') { _%>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-config</artifactId>
+        </dependency>
+        <%_ } _%>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-hystrix</artifactId>
@@ -607,12 +666,20 @@
             <artifactId>spring-cloud-starter-spectator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (authenticationType === 'uaa') { _%>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-security</artifactId>
+        </dependency>
+        <%_ } _%>
+        <%_ if (applicationType === 'microservice' || applicationType === 'gateway' || applicationType === 'uaa') { _%>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
         <%_ } _%>
         <dependency>
@@ -792,18 +859,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-resources</id>
                         <phase>validate</phase>
                         <goals>
-                            <goal>resources</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>target/classes</outputDirectory>
                             <useDefaultDelimiters>false</useDefaultDelimiters>
                             <delimiters>
-                              <delimiter>#</delimiter>
+                                <delimiter>#</delimiter>
                             </delimiters>
                             <resources>
                                 <resource>
@@ -855,7 +923,6 @@
                 </executions>
                 <%_ } _%>
                 <configuration>
-                    <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m ${surefireArgLine}</argLine>
                     <!-- Force alphabetical order to have a reproducible build -->
                     <runOrder>alphabetical</runOrder>
                 </configuration>
@@ -873,8 +940,6 @@
                         <configuration>
                             <!-- Sets the path to the file which contains the execution data. -->
                             <destFile>${project.testresult.directory}/coverage/jacoco/jacoco.exec</destFile>
-                            <!-- Sets the name of the property containing the settings for JaCoCo runtime agent. -->
-                            <propertyName>surefireArgLine</propertyName>
                         </configuration>
                     </execution>
                     <!-- Ensures that the code coverage report for unit tests is created after unit tests have been run -->
@@ -892,7 +957,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar-maven-plugin.version}</version>
             </plugin>
@@ -973,6 +1038,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <executable>true</executable>
+                    <fork>true</fork>
                     <!--
                     Enable the line below to have remote debugging of your application on port 5005
                     <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>
@@ -982,7 +1048,7 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.5</version>
+                <version>0.4.10</version>
                 <configuration>
                     <imageName><%= baseName.toLowerCase() %></imageName>
                     <dockerDirectory>src/main/docker</dockerDirectory>
@@ -1064,10 +1130,19 @@
             </properties>
         </profile>
         <profile>
-            <id>no-swagger</id>
+            <id>swagger</id>
             <properties>
-                <profile.no-swagger>,no-swagger</profile.no-swagger>
+                <profile.swagger>,swagger</profile.swagger>
             </properties>
+        </profile>
+        <profile>
+            <id>shell</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-remote-shell</artifactId>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>dev</id>
@@ -1077,7 +1152,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
@@ -1092,7 +1167,6 @@
                         <artifactId>maven-war-plugin</artifactId>
                         <configuration><% if (!skipClient) { %>
                             <warSourceDirectory><%= CLIENT_MAIN_SRC_DIR %></warSourceDirectory><% } %>
-                            <packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -1101,7 +1175,7 @@
                 <!-- log configuration -->
                 <logback.loglevel>DEBUG</logback.loglevel>
                 <!-- default Spring profiles -->
-                <spring.profiles.active>dev${profile.no-liquibase}${profile.no-swagger}</spring.profiles.active>
+                <spring.profiles.active>dev${profile.no-liquibase}</spring.profiles.active>
             </properties>
         </profile>
         <profile>
@@ -1109,7 +1183,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
                 </dependency>
             </dependencies>
             <build>
@@ -1125,8 +1199,8 @@
                                     <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>v4.4.3</nodeVersion>
-                                    <npmVersion>3.8.3</npmVersion>
+                                    <nodeVersion>v4.5.0</nodeVersion>
+                                    <npmVersion>3.10.6</npmVersion>
                                 </configuration>
                             </execution>
                             <execution>
@@ -1193,7 +1267,6 @@
                         <artifactId>maven-war-plugin</artifactId>
                         <configuration><% if (!skipClient) { %>
                             <warSourceDirectory><%= CLIENT_DIST_DIR %></warSourceDirectory><% } %>
-                            <packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -1202,6 +1275,13 @@
                         <configuration>
                             <executable>true</executable>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>build-info</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -1209,19 +1289,62 @@
                 <!-- log configuration -->
                 <logback.loglevel>INFO</logback.loglevel>
                 <!-- default Spring profiles -->
-                <spring.profiles.active>prod${profile.no-liquibase}${profile.no-swagger}</spring.profiles.active>
+                <spring.profiles.active>prod${profile.swagger}${profile.no-liquibase}</spring.profiles.active>
             </properties>
         </profile>
+        <profile>
+            <!--
+                Profile for doing "continuous compilation" with the Scala Maven plugin.
+                It allows automatic compilation of Java classes as soon as they are saved.
+                Use it with the dev profile: './mvnw -Pdev,cc scala:cc'
+            -->
+            <id>cc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <version>3.2.2</version>
+                        <executions>
+                            <execution>
+                                <id>compile</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>test-compile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <recompileMode>incremental</recompileMode>
+                            <verbose>true</verbose>
+                            <scalaVersion>2.11.7</scalaVersion>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.19</version>
-            </plugin>
-        </plugins>
-    </reporting>
-
 </project>
